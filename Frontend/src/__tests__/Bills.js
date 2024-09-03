@@ -15,21 +15,22 @@ import router from "../app/Router.js";
 
 jest.mock("../app/store", () => mockStore);
 
-describe("When connected in as an employee", () => {
-  it("Bills should be sorted from most recent to oldest", () => {
-    document.body.innerHTML = BillsUI({
-      data: bills.sort((a, b) => (a.date < b.date ? 1 : -1)),
+describe("Given I am connected as an employee", () => {
+  describe("When I view the Bills Page", () => {
+    it("Then the bills should be sorted from most recent to oldest", () => {
+      document.body.innerHTML = BillsUI({
+        data: bills.sort((a, b) => (a.date < b.date ? 1 : -1)),
+      });
+      const dates = screen
+        .getAllByText(
+          /^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i
+        )
+        .map((a) => a.innerHTML);
+      const datesSorted = [...dates].sort((a, b) => (a < b ? 1 : -1));
+      expect(dates).toEqual(datesSorted);
     });
-    const dates = screen
-      .getAllByText(
-        /^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i
-      )
-      .map((a) => a.innerHTML);
-    const datesSorted = [...dates].sort((a, b) => (a < b ? 1 : -1));
-    expect(dates).toEqual(datesSorted);
-  });
-  describe("When viewing the Bills Page", () => {
-    it("The bill icon in the sidebar should be highlighted", async () => {
+
+    it("Then the bill icon in the sidebar should be highlighted", async () => {
       Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
       });
@@ -50,8 +51,8 @@ describe("When connected in as an employee", () => {
     });
   });
 
-  describe("When clicking the 'Nouvelle note de frais' button", () => {
-    it("The new bill form should be displayed", async () => {
+  describe("When I click on the 'Nouvelle note de frais' button", () => {
+    it("Then the new bill form should be displayed", async () => {
       const navigateTo = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -81,8 +82,8 @@ describe("When connected in as an employee", () => {
     });
   });
 
-  describe("When clicking on the eye icon of a bill", () => {
-    it("A modal should appear", async () => {
+  describe("When I click on the eye icon of a bill", () => {
+    it("Then a modal should appear", async () => {
       const navigateTo = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -118,7 +119,7 @@ describe("When connected in as an employee", () => {
   });
 
   describe("When navigating to the Bills page", () => {
-    it("The page should be displayed correctly", async () => {
+    it("Then the page should be displayed correctly", async () => {
       const navigateTo = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -162,7 +163,7 @@ describe("When connected in as an employee", () => {
       router();
     });
 
-    it("Displays 404 error message on API failure", async () => {
+    it("Then it should display a 404 error message on API failure", async () => {
       mockStore.bills.mockImplementationOnce(() => {
         return {
           list: () => Promise.reject(new Error("Erreur 404")),
@@ -174,7 +175,7 @@ describe("When connected in as an employee", () => {
       expect(errorMessage).toBeTruthy();
     });
 
-    it("Displays 500 error message on API failure", async () => {
+    it("Then it should display a 500 error message on API failure", async () => {
       mockStore.bills.mockImplementationOnce(() => {
         return {
           list: () => Promise.reject(new Error("Erreur 500")),

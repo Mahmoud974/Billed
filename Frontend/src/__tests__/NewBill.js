@@ -13,9 +13,9 @@ import router from "../app/Router.js";
 
 jest.mock("../app/store", () => mockStore);
 
-describe("When the user is logged in as an employee", () => {
-  describe("When the user submits a new expense report", () => {
-    it("should display the new bill form", async () => {
+describe("Given the user is logged in as an employee", () => {
+  describe("When the user navigates to the New Bill page", () => {
+    it("Then the new bill form should be displayed", async () => {
       localStorage.setItem(
         "user",
         JSON.stringify({ type: "Employee", email: "a@a" })
@@ -30,8 +30,10 @@ describe("When the user is logged in as an employee", () => {
       await waitFor(() => screen.getByTestId("form-new-bill"));
       expect(screen.getByTestId("form-new-bill")).toBeTruthy();
     });
+  });
 
-    it("should save the new bill successfully", async () => {
+  describe("When the user submits a new expense report", () => {
+    it("Then the new bill should be saved successfully", async () => {
       const navigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -41,6 +43,7 @@ describe("When the user is logged in as an employee", () => {
       });
       window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
       document.body.innerHTML = NewBillUI();
+
       const billManager = new NewBill({
         document,
         onNavigate: navigate,
@@ -50,13 +53,17 @@ describe("When the user is logged in as an employee", () => {
 
       const formElement = screen.getByTestId("form-new-bill");
       expect(formElement).toBeTruthy();
+
       const handleFormSubmit = jest.fn((e) => billManager.handleSubmit(e));
       formElement.addEventListener("submit", handleFormSubmit);
       fireEvent.submit(formElement);
 
       expect(handleFormSubmit).toHaveBeenCalled();
     });
-    it("should correctly process the uploaded file", async () => {
+  });
+
+  describe("When the user uploads a file", () => {
+    it("Then the file should be processed correctly", async () => {
       jest.spyOn(mockStore, "bills");
 
       const navigate = (pathname) => {
@@ -67,7 +74,7 @@ describe("When the user is logged in as an employee", () => {
         value: localStorageMock,
       });
       Object.defineProperty(window, "location", {
-        value: { hash: ROUTES_PATH["NewBill"] },
+        value: { hash: ROUTES_PATH.NewBill },
       });
       window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
 
@@ -82,13 +89,15 @@ describe("When the user is logged in as an employee", () => {
 
       const testFile = new File(["image"], "image.png", { type: "image/png" });
       const handleFileChange = jest.fn((e) => billManager.handleChangeFile(e));
-      const formElement = screen.getByTestId("form-new-bill");
       const fileInput = screen.getByTestId("file");
 
       fileInput.addEventListener("change", handleFileChange);
       userEvent.upload(fileInput, testFile);
+
       expect(fileInput.files[0].name).toBeDefined();
       expect(handleFileChange).toHaveBeenCalled();
+
+      const formElement = screen.getByTestId("form-new-bill");
       const handleFormSubmit = jest.fn((e) => billManager.handleSubmit(e));
       formElement.addEventListener("submit", handleFormSubmit);
       fireEvent.submit(formElement);
