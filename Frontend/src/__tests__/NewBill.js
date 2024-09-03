@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { fireEvent, screen } from "@testing-library/dom";
+import { fireEvent, waitFor, screen } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import NewBill from "../containers/NewBill.js";
 import NewBillUI from "../views/NewBillUI.js";
@@ -26,6 +26,9 @@ describe("When the user is logged in as an employee", () => {
       document.body.append(rootDiv);
       router();
       window.onNavigate(ROUTES_PATH.NewBill);
+
+      await waitFor(() => screen.getByTestId("form-new-bill"));
+      expect(screen.getByTestId("form-new-bill")).toBeTruthy();
     });
 
     it("should save the new bill successfully", async () => {
